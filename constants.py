@@ -19,3 +19,5 @@ class Constants:
         # frames
         self.base_frame = [0, 0, 0, 0, 0, 0]
         self.point_frame = [750, 0, -72.5, 0, 0, 0]
+
+        self.rgb_img_name = "rgb.jpeg"

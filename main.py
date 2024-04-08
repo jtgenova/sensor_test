@@ -25,6 +25,10 @@ class Robot:
         # frames
         self.base_frame = xyzrpw_2_pose(self.C.base_frame)
         self.point_frame = xyzrpw_2_pose(self.C.point_frame)
+
+        # initialize other classes
+        if not self.C.cam_sim:
+            self.camera = IntelCam()
         
 ######################################################################################################################
         
@@ -55,7 +59,27 @@ class Robot:
             # This will set to run the API programs on the robot and the simulator (online programming)
             self.RDK.setRunMode(RUNMODE_RUN_ROBOT)
             # Note: This is set automatically when we Connect() to the robot through the API
-    
+
+        self.cam_item = self.RDK.Item("rgb", robolink.ITEM_TYPE_CAMERA)
+        self.point = self.RDK.Item("point")
+
+        self.RDK.Command("Trace", "Reset")
+        self.RDK.Command("Trace", "Off")
+
+    def take_image(self):
+        if self.C.cam_sim:
+            time.sleep(1)
+            rgb_img_path = f"images/rgb/{self.C.rgb_img_name}"
+            self.cam_item.setParam('Open', 1)
+            time.sleep(1)
+            self.RDK.Cam2D_Snapshot(rgb_img_path, self.cam_item)
+            self.RDK.Cam2D_Close(self.cam_item)
+        else:
+            if not self.C.cam_sim:
+                rgb_img_path = self.camera.capture_image(self.C.rgb_img_name)
+                self.camera.close()
+
+
     def home(self):
         self.initialize()
         self.robot.setSpeed(50, 25)
@@ -63,6 +87,7 @@ class Robot:
 
     def main(self):
         self.home()
+        self.take_image()
 
 ######################################################################################################################
 
