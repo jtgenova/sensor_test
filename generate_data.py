@@ -59,27 +59,27 @@ class DataGenerator:
 
     
 
-if __name__=="__main__":
-    generator = DataGenerator(num_samples=5)
-    x_data, y_data, centers, idx, out = generator.generate_data()
-    x = x_data[0]
-    y = y_data[0]
-    crack_center_x, crack_center_y = centers[0]
-    index = idx[0]
-    output = out[0]
-    print(f"Index: {index}, x: {x[index]}, z: {y[index]}")
+# if __name__=="__main__":
+#     generator = DataGenerator(num_samples=5)
+#     x_data, y_data, centers, idx, out = generator.generate_data()
+#     x = x_data[0]
+#     y = y_data[0]
+#     crack_center_x, crack_center_y = centers[0]
+#     index = idx[0]
+#     output = out[0]
+#     print(f"Index: {index}, x: {x[index]}, z: {y[index]}")
     
-    print(f"Center: {centers[0]}")
-    # Create the plot
-    plt.figure(figsize=(10, 6))
-    plt.plot(x, y, label='Noisy Data')
-    # plt.plot(x, output, label='just center data', color='red')
-    plt.xlabel('x')
-    plt.ylabel('z')
+#     print(f"Center: {centers[0]}")
+#     # Create the plot
+#     plt.figure(figsize=(10, 6))
+#     plt.plot(x, y, label='Noisy Data')
+#     # plt.plot(x, output, label='just center data', color='red')
+#     plt.xlabel('x')
+#     plt.ylabel('z')
 
-    # Mark the center of the crack width with 'X'
-    plt.plot(crack_center_x, crack_center_y, 'rx', label='Crack Center', markersize=10)
+#     # Mark the center of the crack width with 'X'
+#     plt.plot(crack_center_x, crack_center_y, 'rx', label='Crack Center', markersize=10)
 
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+#     plt.legend()
+#     plt.grid(True)
+#     plt.show()

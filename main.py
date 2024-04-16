@@ -3,10 +3,9 @@ from robodk import *      # robodk robotics toolbox
 import numpy as np
 from PIL import Image
 
-
-from camera_class import IntelCam
 from constants import Constants
-
+from camera_class import IntelCam
+from laser_class import scanControl
 
 class Robot:
     def __init__(self):
@@ -16,19 +15,19 @@ class Robot:
         # initialize other classes
         if not self.C.cam_sim:
             self.camera = IntelCam()
+        if not self.C.laser_sim:
+            self.laser = scanControl()
+            self.laser.initialize()
+            self.laser.connect()
 
-        # sim
+        # tool frames
         self.cam_pose = xyzrpw_2_pose(self.C.cam_pose)
         self.laser_pose = xyzrpw_2_pose(self.C.laser_pose)
         self.ee_pose = xyzrpw_2_pose(self.C.ee_pose)
 
-        # frames
+        # reference frames
         self.base_frame = xyzrpw_2_pose(self.C.base_frame)
         self.point_frame = xyzrpw_2_pose(self.C.point_frame)
-
-        # initialize other classes
-        if not self.C.cam_sim:
-            self.camera = IntelCam()
         
 ######################################################################################################################
         
@@ -79,7 +78,11 @@ class Robot:
                 rgb_img_path = self.camera.capture_image(self.C.rgb_img_name)
                 self.camera.close()
 
-
+    def scan_laser(self):
+        if not self.C.laser_sim:
+            x, z = self.laser.transfer_profile()
+            return np.array(x), np.array(z)
+        
     def home(self):
         self.initialize()
         self.robot.setSpeed(50, 25)
@@ -88,6 +91,7 @@ class Robot:
     def main(self):
         self.home()
         self.take_image()
+        x, z = self.scan_laser()
 
 ######################################################################################################################
 

@@ -37,10 +37,10 @@ def main():
     criterion_depth = nn.MSELoss()
     best_val_loss = float('inf')  # Initialize best validation loss for checkpoint
 
-    optimizer = Adam(model.parameters(), lr=0.001)
+    optimizer = Adam(model.parameters(), lr=0.0001)
 
     # Train the model
-    epochs = 100   
+    epochs = 1000   
     train_losses, val_losses = [], []
 
     # Initialize lists to keep track of losses
@@ -117,8 +117,8 @@ def main():
         # Save model checkpoint if it has the best validation loss so far
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            torch.save(model.state_dict(), 'best_model_weights.pth')
-            torch.save(model, 'best_full_model.pth')
+            torch.save(model.state_dict(), 'best_model_weights_1.pth')
+            torch.save(model, 'best_full_model_1.pth')
             print("Saved new best model.")
         
         print("#####################################################################")

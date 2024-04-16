@@ -5,6 +5,7 @@ class Constants:
         self.robot_sim = True
         self.cam_sim = True
         self.just_pic = True
+        self.laser_sim = True
 
         # joints
         self.joints_home = [0, -90, -90, 0, 90, 0]
