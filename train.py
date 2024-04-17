@@ -4,13 +4,14 @@ from torch import nn, optim
 import matplotlib.pyplot as plt
 from torch.optim import Adam
 from sklearn.model_selection import train_test_split
+import os
 
 # Assuming dataset.py and model.py are in the same directory or properly added to the Python path
 from dataset import CrackDataset
 from generate_data import DataGenerator
 from model import MultiOutputCNN, FocalLoss
 
-def main():
+def main(batch_size, lr, epochs):
     # Generate or load data
     generator = DataGenerator(num_samples=10000)
     x_data, y_data, centers, output, crack_width, crack_depth = generator.generate_data()
@@ -24,8 +25,8 @@ def main():
     val_dataset = CrackDataset(y_val, output_val, width_val, depth_val)
 
     # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=100, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=100, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     print(f"Train Dataset: {len(train_dataset)} samples")
     print(f"Validation Dataset: {len(val_dataset)} samples")
@@ -37,10 +38,10 @@ def main():
     criterion_depth = nn.MSELoss()
     best_val_loss = float('inf')  # Initialize best validation loss for checkpoint
 
-    optimizer = Adam(model.parameters(), lr=0.0001)
+    optimizer = Adam(model.parameters(), lr=lr)
 
     # Train the model
-    epochs = 1000   
+    epochs = epochs   
     train_losses, val_losses = [], []
 
     # Initialize lists to keep track of losses
@@ -48,7 +49,7 @@ def main():
     train_losses_width, val_losses_width = [], []
     train_losses_depth, val_losses_depth = [], []
 
-
+    print(f"Model with batch_size = {batch_size}, learning_rate = {lr}, epochs = {epochs}")
     for epoch in range(epochs):
         # scheduler.step()
         model.train()
@@ -117,21 +118,24 @@ def main():
         # Save model checkpoint if it has the best validation loss so far
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            torch.save(model.state_dict(), 'best_model_weights_1.pth')
-            torch.save(model, 'best_full_model_1.pth')
+            torch.save(model.state_dict(), f'model/model_-bs{batch_size}_-lr{lr}_-epochs{epochs}.pth')
+            torch.save(model, f'model/full_model_-bs{batch_size}_-lr{lr}_-epochs{epochs}.pth')
             print("Saved new best model.")
         
         print("#####################################################################")
 
         # Plotting
-    plot_losses(train_losses_segmentation, val_losses_segmentation, "Segmentation Loss")
-    plot_losses(train_losses_width, val_losses_width, "Width Loss")
-    plot_losses(train_losses_depth, val_losses_depth, "Depth Loss")
-    plot_losses(train_losses, val_losses, "Total Loss")
+    save_folder = f"figs/bs{batch_size}_-lr{lr}_-epochs{epochs}"
+    if not os.path.exists(save_folder):
+        os.makedirs(save_folder)
+    plot_losses(train_losses_segmentation, val_losses_segmentation, "Segmentation Loss", f"{save_folder}/seg_loss_bs{batch_size}_-lr{lr}_-epochs{epochs}.png")
+    plot_losses(train_losses_width, val_losses_width, "Width Loss", f"{save_folder}/width_loss_bs{batch_size}_-lr{lr}_-epochs{epochs}.png")
+    plot_losses(train_losses_depth, val_losses_depth, "Depth Loss", f"{save_folder}/depth_loss_bs{batch_size}_-lr{lr}_-epochs{epochs}.png")
+    plot_losses(train_losses, val_losses, "Total Loss", 15, f"{save_folder}/total_loss_bs{batch_size}_-lr{lr}_-epochs{epochs}.png")
 
 
 
-def plot_losses(train_losses, val_losses, title):
+def plot_losses(train_losses, val_losses, title, save_path):
     plt.figure(figsize=(10, 5))
     plt.plot(train_losses, label='Training Loss')
     plt.plot(val_losses, label='Validation Loss')
@@ -139,8 +143,21 @@ def plot_losses(train_losses, val_losses, title):
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.show()
+    plt.savefig(save_path)  # Save the plot to a file
+    plt.close()  # Close the plot figure to free up memory
 
 
 if __name__ == "__main__":
-    main()
+    # batch_size = [100, 500, 1000]
+    # lr = [0.01, 0.001, 0.0001]
+    # epochs = [100, 500, 1000, 5000]
+    # for i in range(len(batch_size)):
+    #     for j in range(len(lr)):
+    #         for k in range(len(epochs)):
+    #             main(batch_size[i], lr[j], epochs[k])
+    
+    batch_size = 100
+    lr = 0.0001
+    epochs = 1000
+    main(batch_size, lr, epochs)
+
